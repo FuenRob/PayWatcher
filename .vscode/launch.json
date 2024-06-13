@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/main.go", // Edit with yout path
+            "envFile": "${workspaceFolder}/.env", // Edit with your path
+        }
+    ]
+}
