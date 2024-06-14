@@ -3,10 +3,10 @@ package config
 import (
 	"os"
 
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 )
 
-type ConfigDataBase struct {
+type configDataBase struct {
 	Host string
 	Port string
 	User string
@@ -14,22 +14,12 @@ type ConfigDataBase struct {
 	Name string
 }
 
-func GetConfigDataBase() ConfigDataBase {
-	/**
-	 * TODO: Ver como hacer para que no se tenga que cargar
-	 * el archivo .env en cada archivo
-	 */
-	var config ConfigDataBase
-	err := godotenv.Load(".env")
-	if err != nil {
-		panic(err)
-	}
+var DataBase configDataBase
 
-	config.Host = os.Getenv("DB_HOST")
-	config.Port = os.Getenv("DB_PORT")
-	config.User = os.Getenv("DB_USER")
-	config.Pass = os.Getenv("DB_PASS")
-	config.Name = os.Getenv("DB_NAME")
-
-	return config
+func init() {
+	DataBase.Host = os.Getenv("DB_HOST")
+	DataBase.Port = os.Getenv("DB_PORT")
+	DataBase.User = os.Getenv("DB_USER")
+	DataBase.Pass = os.Getenv("DB_PASS")
+	DataBase.Name = os.Getenv("DB_NAME")
 }
