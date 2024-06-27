@@ -5,7 +5,6 @@ import (
 	"PayWatcher/model"
 
 	"github.com/gofiber/fiber/v2"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -62,11 +61,6 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "Success", "data": user, "message": "Usuario creado correctamente"})
-}
-
-func hashPassword(password string) (string, error) {
-	passCifrate, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-	return string(passCifrate), err
 }
 
 // PUT /user/:id

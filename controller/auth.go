@@ -1,0 +1,90 @@
+package controller
+
+import (
+	"PayWatcher/config"
+	"PayWatcher/database"
+	"PayWatcher/model"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
+)
+
+func hashPassword(password string) (string, error) {
+	passCifrate, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	return string(passCifrate), err
+}
+
+func createToken(user model.User) *jwt.Token {
+	claims := jwt.MapClaims{
+		"name":  user.Name,
+		"admin": true,
+		"exp":   time.Now().Add(time.Hour * 72).Unix(),
+	}
+
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+}
+
+func CheckExistingUser(identity string) (model.User, error) {
+	var DB = database.DB
+	var user model.User
+	if err := DB.Where("user_name = ?", identity).First(&user); err.Error != nil {
+		return user, err.Error
+	}
+
+	return user, nil
+}
+
+func CheckComparePassword(hash string, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
+
+func Login(c *fiber.Ctx) error {
+	var loginInput struct {
+		Identity string `json:"identity"`
+		Password string `json:"password"`
+	}
+
+	var user model.User
+	var err error
+
+	if err = c.BodyParser(&loginInput); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Invalid Request",
+		})
+	}
+
+	user, err = CheckExistingUser(loginInput.Identity)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Invalid credentials",
+		})
+	}
+
+	if !CheckComparePassword(user.Password, loginInput.Password) {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Invalid credentials",
+		})
+	}
+
+	token := createToken(user)
+
+	t, err := token.SignedString([]byte(config.SecretJWTKey))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Error interno",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Login OK!",
+		"data":    t,
+	})
+}
