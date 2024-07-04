@@ -16,9 +16,17 @@ func hashPassword(password string) (string, error) {
 	return string(passCifrate), err
 }
 
+func getIdUserInToken(c *fiber.Ctx) int {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"].(float64)
+	return int(id)
+}
+
 func createToken(user model.User) *jwt.Token {
 	claims := jwt.MapClaims{
 		"name":  user.Name,
+		"id":    user.ID,
 		"admin": true,
 		"exp":   time.Now().Add(time.Hour * 72).Unix(),
 	}

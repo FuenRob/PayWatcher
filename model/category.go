@@ -8,3 +8,10 @@ type Category struct {
 	Recurrent bool   `json:"recurrent"`
 	Notify    bool   `json:"notify"`
 }
+
+type UpdateOrCreateCategory struct {
+	Name      string `json:"name"`
+	Priority  uint   `json:"priority"`
+	Recurrent bool   `json:"recurrent"`
+	Notify    bool   `json:"notify"`
+}
