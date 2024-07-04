@@ -15,26 +15,24 @@ func GetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	if id != "" {
-		return GetUserByID(c, db, id)
+		return getUserByID(c, db, id)
 	}
 
-	return GetAllUsers(c, db)
+	return getAllUsers(c, db)
 }
 
-func GetUserByID(c *fiber.Ctx, db *gorm.DB, id string) error {
+func getUserByID(c *fiber.Ctx, db *gorm.DB, id string) error {
 	var user model.User
-	result := db.First(&user, id)
-	if result.Error != nil {
+	if err := db.First(&user, id).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"status": "Error", "message": "Usuario no encontrado"})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "Success", "data": user, "message": "Usuario encontrado"})
 }
 
-func GetAllUsers(c *fiber.Ctx, db *gorm.DB) error {
+func getAllUsers(c *fiber.Ctx, db *gorm.DB) error {
 	var users []model.User
-	result := db.Find(&users)
-	if result.Error != nil {
+	if err := db.Find(&users).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "Error", "message": "Error al obtener usuarios"})
 	}
 
@@ -86,8 +84,7 @@ func UpdateUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "Error", "message": "Error al cifrar la contraseña"})
 	}
 
-	result := db.First(&user, id)
-	if result.Error != nil {
+	if err := db.First(&user, id).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"status": "Error", "message": "Usuario no encontrado"})
 	}
 
@@ -109,13 +106,11 @@ func DeteleUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var user model.User
 
-	result := db.First(&user, id)
-	if result.Error != nil {
+	if err := db.First(&user, id).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"status": "Error", "message": "Usuario no encontrado"})
 	}
 
-	result = db.Delete(&user)
-	if result.Error != nil {
+	if err := db.Delete(&user).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "Error", "message": "Error al borrar el usuario"})
 	}
 
