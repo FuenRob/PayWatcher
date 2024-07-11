@@ -16,7 +16,7 @@ func GetCatories(c *fiber.Ctx) error {
 	userID := getIdUserInToken(c)
 
 	if id != "" {
-		return getCategoryByID(c, db, id)
+		return getCategoryByID(c, db, id, userID)
 	}
 
 	return getAllCatories(c, db, userID)
@@ -25,17 +25,17 @@ func GetCatories(c *fiber.Ctx) error {
 func getAllCatories(c *fiber.Ctx, db *gorm.DB, userID int) error {
 	categories := []model.Category{}
 	if err := db.Where("user_id = ?", userID).Find(&categories).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "Error", "message": "Error al obtener categorias"})
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"status": "Error", "message": "Error al obtener categorias"})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "Success", "data": categories, "message": "Categorias encontradas"})
 
 }
 
-func getCategoryByID(c *fiber.Ctx, db *gorm.DB, id string) error {
+func getCategoryByID(c *fiber.Ctx, db *gorm.DB, id string, userID int) error {
 	var category model.Category
 
-	if err := db.First(&category, id).Error; err != nil {
+	if err := db.First(&category, "id = ? AND user_id = ?", id, userID).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"status": "Error", "message": "Categoria no encontrada"})
 	}
 
@@ -46,17 +46,17 @@ func getCategoryByID(c *fiber.Ctx, db *gorm.DB, id string) error {
 func CreateCategory(c *fiber.Ctx) error {
 	db := database.DB
 	category := new(model.Category)
-	updateCategory := new(model.UpdateOrCreateCategory)
+	createCategoryStruct := new(model.UpdateOrCreateCategory)
 
-	if err := c.BodyParser(&updateCategory); err != nil {
+	if err := c.BodyParser(&createCategoryStruct); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "Error", "message": "Faltan datos en el JSON"})
 	}
 
 	category.UserID = uint(getIdUserInToken(c))
-	category.Name = updateCategory.Name
-	category.Priority = updateCategory.Priority
-	category.Recurrent = updateCategory.Recurrent
-	category.Notify = updateCategory.Notify
+	category.Name = createCategoryStruct.Name
+	category.Priority = createCategoryStruct.Priority
+	category.Recurrent = createCategoryStruct.Recurrent
+	category.Notify = createCategoryStruct.Notify
 
 	if err := db.Create(&category).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "Error", "message": "Error al crear la categoria"})
@@ -77,7 +77,7 @@ func UpdateCategory(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "Error", "message": "Faltan datos en el JSON"})
 	}
 
-	if err := db.First(&category, id).Error; err != nil {
+	if err := db.First(&category, "id = ? AND user_id = ?", id, getIdUserInToken(c)).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"status": "Error", "message": "Categoria no encontrada"})
 	}
 
@@ -100,7 +100,7 @@ func DeleteCategory(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var category model.Category
 
-	if err := db.First(&category, id).Error; err != nil {
+	if err := db.First(&category, "id = ? AND user_id = ?", id, getIdUserInToken(c)).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"status": "Error", "message": "Categoria no encontrado"})
 	}
 
