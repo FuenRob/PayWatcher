@@ -15,6 +15,7 @@ type configDataBase struct {
 }
 
 var SecretJWTKey string
+var DateFormat string
 
 var DataBase configDataBase
 
@@ -25,4 +26,6 @@ func init() {
 	DataBase.Pass = os.Getenv("DB_PASS")
 	DataBase.Name = os.Getenv("DB_NAME")
 	SecretJWTKey = os.Getenv("JWT_SECRET")
+	DateFormat = os.Getenv("DATE_FORMAT")
+
 }
