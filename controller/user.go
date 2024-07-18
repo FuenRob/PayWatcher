@@ -57,8 +57,17 @@ func CreateUser(c *fiber.Ctx) error {
 	if err := db.Create(&user).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "Error", "message": "Error al crear el usuario"})
 	}
+	var userReturn struct {
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		UserName string `json:"username"`
+	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "Success", "data": user, "message": "Usuario creado correctamente"})
+	userReturn.Name = user.Name
+	userReturn.Email = user.Email
+	userReturn.UserName = user.UserName
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "Success", "data": userReturn, "message": "Usuario creado correctamente"})
 }
 
 // PUT /user/:id

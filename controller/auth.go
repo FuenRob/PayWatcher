@@ -4,6 +4,7 @@ import (
 	"PayWatcher/config"
 	"PayWatcher/database"
 	"PayWatcher/model"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -38,6 +39,7 @@ func CheckExistingUser(identity string) (model.User, error) {
 	var DB = database.DB
 	var user model.User
 	if err := DB.Where("user_name = ?", identity).First(&user); err.Error != nil {
+		user.ID = 0
 		return user, err.Error
 	}
 
@@ -49,6 +51,7 @@ func CheckComparePassword(hash string, password string) bool {
 	return err == nil
 }
 
+// /api/auth/login post
 func Login(c *fiber.Ctx) error {
 	var loginInput struct {
 		Identity string `json:"identity"`
@@ -65,12 +68,24 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err = CheckExistingUser(loginInput.Identity)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Invalid credentials",
-		})
+	if strings.Contains(loginInput.Identity, "@") {
+		user, err = CheckExistingUserByEmail(loginInput.Identity)
+		if err != nil || user.ID == 0 {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Invalid credentials",
+			})
+		}
+
+	} else {
+
+		user, err = CheckExistingUser(loginInput.Identity)
+		if err != nil || user.ID == 0 {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Invalid credentials",
+			})
+		}
 	}
 
 	if !CheckComparePassword(user.Password, loginInput.Password) {
@@ -95,4 +110,15 @@ func Login(c *fiber.Ctx) error {
 		"message": "Login OK!",
 		"data":    t,
 	})
+}
+
+func CheckExistingUserByEmail(email string) (model.User, error) {
+	var DB = database.DB
+	var user model.User
+	if err := DB.Where("email = ?", email).First(&user); err.Error != nil {
+		user.ID = 0
+		return user, err.Error
+	}
+
+	return user, nil
 }

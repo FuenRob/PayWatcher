@@ -8,6 +8,8 @@ import (
 )
 
 func Init(app *fiber.App) {
+	app.Use(middleware.PanicRecover, middleware.SecureHeaders)
+
 	api := app.Group("/api")
 
 	auth := api.Group("/auth")
