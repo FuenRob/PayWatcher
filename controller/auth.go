@@ -119,6 +119,5 @@ func CheckExistingUserByEmail(email string) (model.User, error) {
 		user.ID = 0
 		return user, err.Error
 	}
-
 	return user, nil
 }

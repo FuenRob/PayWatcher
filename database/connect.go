@@ -26,8 +26,6 @@ func Connect() {
 	fmt.Println("Database connected!")
 	// Migrate the schema
 	fmt.Println("Migrating the schema...")
-	DB.AutoMigrate(model.User{})
-	DB.AutoMigrate(model.Payment{})
-	DB.AutoMigrate(model.Category{})
+	DB.AutoMigrate(model.User{}, model.Payment{}, model.Category{})
 	fmt.Println("Schema migrated!")
 }
