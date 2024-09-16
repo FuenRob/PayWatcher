@@ -34,4 +34,7 @@ func Init(app *fiber.App) {
 	payment.Get("/category/:idCategory", middleware.ProtectedHandler(), controller.GetPaymentsByCategoryID)
 	payment.Put("/:id", middleware.ProtectedHandler(), controller.UpdatePayment)
 	payment.Delete("/:id", middleware.ProtectedHandler(), controller.DeletePayment)
+
+	mail := api.Group("/mail")
+	mail.Get("/test", middleware.ProtectedHandler(), controller.TestMail)
 }

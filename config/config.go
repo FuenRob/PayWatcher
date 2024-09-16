@@ -1,6 +1,7 @@
 package config
 
 import (
+	"PayWatcher/model"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -18,6 +19,7 @@ var SecretJWTKey string
 var DateFormat string
 
 var DataBase configDataBase
+var MailSender model.MailSender
 
 func init() {
 	DataBase.Host = os.Getenv("DB_HOST")
@@ -27,5 +29,8 @@ func init() {
 	DataBase.Name = os.Getenv("DB_NAME")
 	SecretJWTKey = os.Getenv("JWT_SECRET")
 	DateFormat = os.Getenv("DATE_FORMAT")
-
+	MailSender.Host = os.Getenv("EMAIL_HOST")
+	MailSender.Port = os.Getenv("EMAIL_PORT")
+	MailSender.Username = os.Getenv("EMAIL_USERNAME")
+	MailSender.Password = os.Getenv("EMAIL_PASSWORD")
 }
