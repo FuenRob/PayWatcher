@@ -1,6 +1,7 @@
 package main
 
 import (
+	"PayWatcher/cronjob"
 	"PayWatcher/database"
 	"PayWatcher/router"
 
@@ -8,6 +9,7 @@ import (
 )
 
 func main() {
+	go cronjob.InitCronJobs()
 	database.Connect()
 	app := fiber.New()
 	app.Get("/", func(c *fiber.Ctx) error {
