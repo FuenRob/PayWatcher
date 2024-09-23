@@ -2,12 +2,18 @@ package router
 
 import (
 	"PayWatcher/controller"
+	"PayWatcher/database"
 	"PayWatcher/middleware"
+	"PayWatcher/repository/payment"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func Init(app *fiber.App) {
+
+	paymentRepository := payment.New(database.DB)
+	paymentCtrl := controller.NewPaymentCtrl(paymentRepository)
+
 	api := app.Group("/api")
 
 	auth := api.Group("/auth")
@@ -28,12 +34,12 @@ func Init(app *fiber.App) {
 	category.Delete("/:id", middleware.ProtectedHandler(), controller.DeleteCategory)
 
 	payment := api.Group("/payment")
-	payment.Post("/", middleware.ProtectedHandler(), controller.CreatePayment)
-	payment.Get("/", middleware.ProtectedHandler(), controller.GetPayment)
-	payment.Get("/:id", middleware.ProtectedHandler(), controller.GetPayment)
-	payment.Get("/category/:idCategory", middleware.ProtectedHandler(), controller.GetPaymentsByCategoryID)
-	payment.Put("/:id", middleware.ProtectedHandler(), controller.UpdatePayment)
-	payment.Delete("/:id", middleware.ProtectedHandler(), controller.DeletePayment)
+	payment.Post("/", middleware.ProtectedHandler(), paymentCtrl.CreatePayment)
+	payment.Get("/", middleware.ProtectedHandler(), paymentCtrl.GetAllPayments)
+	payment.Get("/:id", middleware.ProtectedHandler(), paymentCtrl.GetPaymentByID)
+	payment.Get("/category/:idCategory", middleware.ProtectedHandler(), paymentCtrl.GetPaymentsByCategoryID)
+	payment.Put("/:id", middleware.ProtectedHandler(), paymentCtrl.UpdatePayment)
+	payment.Delete("/:id", middleware.ProtectedHandler(), paymentCtrl.DeletePayment)
 
 	mail := api.Group("/mail")
 	mail.Get("/test", middleware.ProtectedHandler(), controller.TestMail)
