@@ -4,15 +4,23 @@ import (
 	"PayWatcher/controller"
 	"PayWatcher/database"
 	"PayWatcher/middleware"
+	"PayWatcher/repository/category"
 	"PayWatcher/repository/payment"
+	"PayWatcher/repository/user"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func Init(app *fiber.App) {
 
+	userRepository := user.New(database.DB)
+	userCtrl := controller.NewUserCtrl(userRepository)
+
 	paymentRepository := payment.New(database.DB)
 	paymentCtrl := controller.NewPaymentCtrl(paymentRepository)
+
+	categoryRepository := category.New(database.DB)
+	categoryCtrl := controller.NewCategoryCtrl(categoryRepository)
 
 	api := app.Group("/api")
 
@@ -20,18 +28,18 @@ func Init(app *fiber.App) {
 	auth.Post("/login", controller.Login)
 
 	user := api.Group("/user")
-	user.Post("/", controller.CreateUser)
-	user.Get("/", middleware.ProtectedHandler(), controller.GetUser)
-	user.Get("/:id", middleware.ProtectedHandler(), controller.GetUser)
-	user.Put("/:id", middleware.ProtectedHandler(), controller.UpdateUser)
-	user.Delete("/:id", middleware.ProtectedHandler(), controller.DeteleUser)
+	user.Post("/", userCtrl.CreateUser)
+	user.Get("/", middleware.ProtectedHandler(), userCtrl.GetAllUsers)
+	user.Get("/:id", middleware.ProtectedHandler(), userCtrl.GetUserByID)
+	user.Put("/:id", middleware.ProtectedHandler(), userCtrl.UpdateUser)
+	user.Delete("/:id", middleware.ProtectedHandler(), userCtrl.DeleteUser)
 
 	category := api.Group("/category")
-	category.Post("/", middleware.ProtectedHandler(), controller.CreateCategory)
-	category.Get("/", middleware.ProtectedHandler(), controller.GetCatories)
-	category.Get("/:id", middleware.ProtectedHandler(), controller.GetCatories)
-	category.Put("/:id", middleware.ProtectedHandler(), controller.UpdateCategory)
-	category.Delete("/:id", middleware.ProtectedHandler(), controller.DeleteCategory)
+	category.Post("/", middleware.ProtectedHandler(), categoryCtrl.CreateCategory)
+	category.Get("/", middleware.ProtectedHandler(), categoryCtrl.GetAllCatories)
+	category.Get("/:id", middleware.ProtectedHandler(), categoryCtrl.GetCategoryByID)
+	category.Put("/:id", middleware.ProtectedHandler(), categoryCtrl.UpdateCategory)
+	category.Delete("/:id", middleware.ProtectedHandler(), categoryCtrl.DeleteCategory)
 
 	payment := api.Group("/payment")
 	payment.Post("/", middleware.ProtectedHandler(), paymentCtrl.CreatePayment)

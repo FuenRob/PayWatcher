@@ -7,3 +7,10 @@ type User struct {
 	UserName string `json:"username"`
 	Password string `json:"-"`
 }
+
+type UpdateOrCreateUser struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	UserName string `json:"username"`
+	Password string `json:"password"`
+}

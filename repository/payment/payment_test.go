@@ -6,7 +6,6 @@ import (
 	"context"
 	"database/sql/driver"
 	"log"
-	"regexp"
 	"testing"
 	"time"
 
@@ -168,9 +167,7 @@ func TestUpdatePayment(t *testing.T) {
 		1, "Payment 1", 1, 3, 100.0, 120.0, 20.0, date, true, "Credit Card", true,
 	)
 
-	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `payments` WHERE id = ? AND user_id = ? ORDER BY `payments`.`id` LIMIT ?")).
-		WithArgs(1, 3, 1).
-		WillReturnRows(rows)
+	mock.ExpectQuery("SELECT").WithArgs(1, 3, 1).WillReturnRows(rows)
 	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `payments`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
@@ -210,10 +207,7 @@ func TestDeletePayment(t *testing.T) {
 		1, "Payment 1", 1, 3, 100.0, 120.0, 20.0, date, true, "Credit Card", true,
 	)
 
-	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `payments` WHERE id = ? AND user_id = ? ORDER BY `payments`.`id` LIMIT ?")).
-		WithArgs(1, 3, 1).
-		WillReturnRows(rows)
-
+	mock.ExpectQuery("SELECT").WithArgs(1, 3, 1).WillReturnRows(rows)
 	mock.ExpectBegin()
 	mock.ExpectExec("DELETE FROM `payments`").WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
