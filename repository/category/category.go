@@ -67,7 +67,7 @@ func (cr categoryRepo) GetByID(ctx context.Context, ID, userID int) (model.Categ
 }
 
 // Update implements model.CategoryRepository.
-func (cr categoryRepo) Update(ctx context.Context, ID, userID, int, params model.UpdateOrCreateCategory) (model.Category, error) {
+func (cr categoryRepo) Update(ctx context.Context, ID, userID int, params model.UpdateOrCreateCategory) (model.Category, error) {
 	var category model.Category
 
 	var uc model.UpdateOrCreateCategory
