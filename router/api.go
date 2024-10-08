@@ -22,6 +22,8 @@ func Init(app *fiber.App) {
 	categoryRepository := category.New(database.DB)
 	categoryCtrl := controller.NewCategoryCtrl(categoryRepository)
 
+	app.Use(middleware.PanicRecover, middleware.SecureHeaders)
+
 	api := app.Group("/api")
 
 	auth := api.Group("/auth")
@@ -35,19 +37,21 @@ func Init(app *fiber.App) {
 	user.Delete("/:id", middleware.ProtectedHandler(), userCtrl.DeleteUser)
 
 	category := api.Group("/category")
-	category.Post("/", middleware.ProtectedHandler(), categoryCtrl.CreateCategory)
-	category.Get("/", middleware.ProtectedHandler(), categoryCtrl.GetAllCatories)
-	category.Get("/:id", middleware.ProtectedHandler(), categoryCtrl.GetCategoryByID)
-	category.Put("/:id", middleware.ProtectedHandler(), categoryCtrl.UpdateCategory)
-	category.Delete("/:id", middleware.ProtectedHandler(), categoryCtrl.DeleteCategory)
+	category.Use(middleware.ProtectedHandler())
+	category.Post("/", categoryCtrl.CreateCategory)
+	category.Get("/", categoryCtrl.GetAllCatories)
+	category.Get("/:id", categoryCtrl.GetCategoryByID)
+	category.Put("/:id", categoryCtrl.UpdateCategory)
+	category.Delete("/:id", categoryCtrl.DeleteCategory)
 
 	payment := api.Group("/payment")
-	payment.Post("/", middleware.ProtectedHandler(), paymentCtrl.CreatePayment)
-	payment.Get("/", middleware.ProtectedHandler(), paymentCtrl.GetAllPayments)
-	payment.Get("/:id", middleware.ProtectedHandler(), paymentCtrl.GetPaymentByID)
-	payment.Get("/category/:idCategory", middleware.ProtectedHandler(), paymentCtrl.GetPaymentsByCategoryID)
-	payment.Put("/:id", middleware.ProtectedHandler(), paymentCtrl.UpdatePayment)
-	payment.Delete("/:id", middleware.ProtectedHandler(), paymentCtrl.DeletePayment)
+	payment.Use(middleware.ProtectedHandler())
+	payment.Post("/", paymentCtrl.CreatePayment)
+	payment.Get("/", paymentCtrl.GetAllPayments)
+	payment.Get("/:id", paymentCtrl.GetPaymentByID)
+	payment.Get("/category/:idCategory", paymentCtrl.GetPaymentsByCategoryID)
+	payment.Put("/:id", paymentCtrl.UpdatePayment)
+	payment.Delete("/:id", paymentCtrl.DeletePayment)
 
 	mail := api.Group("/mail")
 	mail.Get("/test", middleware.ProtectedHandler(), controller.TestMail)
