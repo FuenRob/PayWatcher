@@ -70,16 +70,18 @@ func (cr categoryRepo) GetByID(ctx context.Context, ID, userID int) (model.Categ
 func (cr categoryRepo) Update(ctx context.Context, ID, userID int, params model.UpdateOrCreateCategory) (model.Category, error) {
 	var category model.Category
 
-	var uc model.UpdateOrCreateCategory
-
 	if err := cr.db.First(&category, "id = ? AND user_id = ?", ID, userID).Error; err != nil {
 		return category, err
 	}
 
-	category.Name = uc.Name
-	category.Priority = uc.Priority
-	category.Recurrent = uc.Recurrent
-	category.Notify = uc.Notify
+	category.Name = params.Name
+	category.Priority = params.Priority
+	category.Recurrent = params.Recurrent
+	category.Notify = params.Notify
+
+	if err := cr.db.Save(&category).Error; err != nil {
+		return category, err
+	}
 
 	return category, nil
 }
