@@ -14,9 +14,10 @@ func main() {
 	database.Connect()
 	app := fiber.New()
 	app.Use(cors.New())
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
 	router.Init(app)
+	app.Static("/", "./frontend/dist")
+	app.Get("*", func(c *fiber.Ctx) error {
+		return c.SendFile("./frontend/dist/index.html")
+	})
 	app.Listen(":3000")
 }
