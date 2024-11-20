@@ -1,0 +1,3 @@
+[submodule "PayWatcher-Frontend"]
+	path = PayWatcher-Frontend
+	url = https://github.com/FuenRob/PayWatcher-Frontend
