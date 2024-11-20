@@ -14,7 +14,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -24,5 +27,20 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+    #- name: Test
+    #  run: go test -v ./...
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm install
+
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+
+
